@@ -5,7 +5,8 @@
 ```bash
     git clone https://github.com/cak-17/buttongame-v032.git
     cd buttongame-v032
-    npm install
+    cd backend && npm install
+    cd ../frontend && npm install
 ```
 
 Add your MongoDB credentials to and .env file in your backend root folder.
