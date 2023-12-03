@@ -19,7 +19,8 @@ Add your MongoDB credentials to and .env file in your backend root folder.
 
 ## Usage
 
-To run the server just type `npm run start`, or `node main.js runserver`.
-If you want to run in it develoment mode use `npm run dev` or `node main.js runserver -d`
-
-For more options `node main.js help`
+```bash
+    make help                 Show this help
+    make backend              Start Backend 
+    make frontend             Start Frontend
+```
