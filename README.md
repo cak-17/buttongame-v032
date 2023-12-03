@@ -18,7 +18,8 @@ Add your MongoDB credentials to and .env file in your backend root folder.
 
 ## Usage
 
-    ```bash
+```bash
     make help                 Show this help
     make backend              Start Backend 
-    make frontend             Start Frontend```
+    make frontend             Start Frontend
+```
