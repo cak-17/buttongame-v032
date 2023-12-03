@@ -3,7 +3,7 @@
 ## Setup
 
 ```bash
-    [git clone https://github.com/cak-17/expressjs_backend](https://github.com/cak-17/buttongame-v032.git)
+    git clone https://github.com/cak-17/buttongame-v032.git
     cd buttongame-v032
     npm install
 ```
