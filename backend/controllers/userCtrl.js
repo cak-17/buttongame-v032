@@ -1,5 +1,5 @@
-const { sha3_256 } = require('js-sha3')
 const User = require('../models/User')
+const { logger } = require('../utils/logger')
 
 getAll = async (req, res) => {
     await User.find()
@@ -7,7 +7,7 @@ getAll = async (req, res) => {
             if (!users.length) {
                 return res.status(404).json({
                     success: false,
-                    error: 'Users not found'
+                    message: 'Users not found'
                 })
             }
 
@@ -16,34 +16,42 @@ getAll = async (req, res) => {
                 data: users
             })
         }).catch(err => {
-            console.log(err)
-            res.status(400).json({ success: false, error: err })
+            logger.error("getAll() ->", err)
+            res.status(400).json({
+                success: false,
+                error: err,
+                message: 'Users not found'
+            })
         })
 }
 
-register = (req, res) => {
+register = async (req, res) => {
     const body = req.body
+    console.log(req.body)
+
     if (!body) {
-        return res.status(200).json({
+        return res.status(400).json({
             success: false,
-            error: 'All fields are required'
+            message: 'All fields are required',
+            body: body
         })
     }
-
-    const user = new User(body)
+    const user = new User({
+        username: body.username,
+        email: body.email,
+        isSu: false,
+        isStaff: false
+    })
 
 
     if (!user) {
         return res.status(400).json({
             success: false,
-            error: err,
+            message: 'User was not created',
         })
     }
 
-
     user.setPassword(req.body.password)
-
-    console.log(user.password)
 
     user.save()
         .then(user => {
@@ -56,42 +64,53 @@ register = (req, res) => {
         .catch(error => {
             return res.status(400).json({
                 success: false,
-                message: 'User was not created'
+                message: 'User was not created',
+                error: error
             })
         })
 }
 login = async (req, res) => {
-    await User.findOne({ username: req.body.username })
+    await User.findOne({ email: req.body.email })
         .then(user => {
             if (!user) {
                 return res.status(404).json({
-                    succesS: false,
-                    error: 'User not found'
+                    success: false,
+                    message: 'User not found'
                 })
             }
 
             if (!user.validPassword(req.body.password)) {
                 return res.status(403).json({
                     success: false,
-                    error: 'Password not valid'
+                    message: 'Password not valid'
                 })
             }
             return res.status(200).json({
                 success: true,
                 data: user,
+                token: `${user._id}`
             })
         }).catch(err => {
             console.log(err)
-            res.status(400).json({ success: false, error: err })
+            res.status(400).json({ success: false, message: err.message, error: err })
         })
 }
 
 resetPassword = async (req, res) => {
+    if (!req.body) {
+        return res.status(400).json({
+            success: false,
+            message: 'All fields are required',
+            body: req.body
+        })
+    }
+
     const oldPassword = req.body.oldPassword;
     const newPassword1 = req.body.newPassword1;
     const newPassword2 = req.body.newPassowrd2;
+    const username = req.body.username
 
-    await User.findById(req.body.userId)
+    await User.findOne({username:username})
         .then(user => {
             if (newPassword1 === newPassword2) {
                 if (user.resetPassword(oldPassword, newPassword1))
@@ -101,8 +120,9 @@ resetPassword = async (req, res) => {
                 })
             }
         }).catch(err => res.status(400).json({
-            success: false,
             message: err.message,
+            success: false,
+            error: err,
         }))
 
 }

@@ -2,8 +2,21 @@ import React from 'react';
 import { Container, Typography, Box, Button } from '@mui/material';
 
 export default function Home({socket}) {
-
+    const [connected, setConnected] = React.useState(socket.connected);
     const [id, setID] = React.useState('');
+    console.log(connected)
+    React.useEffect( () => {
+        if (connected) {
+            socket.disconnect()
+        } else {
+            socket.connect();
+        }
+    }, [socket, connected])
+
+    const handleClick = (e) => {
+        e.preventDefault()
+        setConnected(!connected)
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -15,6 +28,7 @@ export default function Home({socket}) {
             <form onSubmit={handleSubmit}>
                 <input type="test" value={id} onChange={(e) => setID(e.target.value)} />
                 <Button variant="outlined" type="submit">Enter</Button>
+                <Button variant={!connected ? "outlined" : 'contained'} onClick={e => handleClick(e)}>{!connected ? "Disconnect" : 'Connect'}</Button>
             </form>
         </Container>
     )

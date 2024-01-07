@@ -3,18 +3,16 @@ const { RoomCategory } = require('../models/RoomCategory')
 
 createRoom = async (req, res) => {
     const body = req.body
-    if (!body) {
+    if (!body || !body.roomID) {
         return res.status(400).json({
             success: false,
-            error: 'You must provide a Room'
+            error: 'You must provide a Room ID'
         })
     }
-    const number = req.body.number
-    const category = await RoomCategory.find().where('slug', req.body.roomCategorySlug)
+    const roomID = body.roomID
 
     const room = new Room({
-        number: number,
-        category: category
+        roomID: roomID,
     })
 
     if (!room) {
@@ -27,7 +25,7 @@ createRoom = async (req, res) => {
         .then(() => {
             return res.status(200).json({
                 success: true,
-                id: room._id,
+                id: room._roomID,
                 message: 'Room created'
             })
         })
@@ -38,51 +36,6 @@ createRoom = async (req, res) => {
             })
         })
 };
-
-createRoomCategory = (req, res) => {
-    const body = req.body
-    if (!body) {
-        return res.status(400).json({
-            success: false,
-            error: 'You must provide a Room Category'
-        })
-    }
-
-    const roomCategory = new RoomCategory(body)
-
-    if (!roomCategory) {
-        return res.status(400).json({
-            success: false,
-            error: err,
-        })
-    }
-    roomCategory.save()
-        .then(() => {
-            return res.status(200).json({
-                success: true,
-                id: roomCategory._id,
-                message: 'Room Category created'
-            })
-        })
-        .catch((error) => {
-            return res.status(400).json({
-                success: false,
-                message: 'Room Category not created',
-            })
-        })
-}
-
-getRoomCategories = async (req, res) => {
-    await RoomCategory.find()
-        .then(rooms => {
-            if (!rooms.length) {
-                return res
-                .status(404)
-                .json({success: false, error: 'Room Categories not found'})
-            }
-            return res.status(200).json({ success: true, data: rooms})
-        }).catch(err => res.status(400).json({ success: false, error: err}))
-}
 
 getRooms = async (req, res) => {
     await Room.find()
@@ -96,9 +49,26 @@ getRooms = async (req, res) => {
         }).catch(err => res.status(400).json({ success: false, error: err}))
 }
 
+getRoom = async (req, res) => {
+    const roomID = req.body.roomID
+    if (!roomID) {
+        return res.status(400).json({
+            success: false,
+            message: 'Room ID cannot be empty'
+        })
+    }
+    
+    const room = await Room.findOne({ roomID: roomID})
+    if (!room) {
+        return res.status(404).json({
+            success: false,
+            message: `Room ${roomID}`,
+        })
+    }
+}
+
 module.exports = {
     createRoom,
-    createRoomCategory,
     getRooms,
-    getRoomCategories,
+
 }

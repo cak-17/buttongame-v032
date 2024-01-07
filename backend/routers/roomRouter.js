@@ -5,8 +5,6 @@ const router = express.Router();
 
 router.get('/rooms', roomCtrl.getRooms)
 router.post('/rooms', roomCtrl.createRoom)
-
-router.post('/rooms/categories', roomCtrl.createRoomCategory)
-router.get('/rooms/categories', roomCtrl.getRoomCategories)
+router.post('/room', roomCtrl.getRoom)
 
 module.exports = router;

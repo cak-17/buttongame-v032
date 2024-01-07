@@ -1,22 +1,21 @@
 const express = require("express");
 const cors = require("cors");
+const fileUpload = require('express-fileupload');
 const http = require('http');
 const { Server } = require('socket.io')
 const db = require('./db');
 
-const logMiddleware =  require('./middlewares/log')
-const { errorMiddleware, notFoundMiddleware } = require("./middlewares/errors");
+const logMiddleware = require('./middlewares/log')
 
 const router = require('./routers')
 const userRouter = require('./routers/userRouter');
 
 const userEvents = require('./events/user')
 const chatEvents = require('./events/chat')
-const gameEvents = require('./events/game')
-
-const { promptListen, formatCli } = require('./utils/prompts');
+const fileEvents = require('./events/files')
+const { promptListen } = require('./utils/prompts');
 const { DEFAULTS } = require('./settings/index');
-const ChatMsg = require("./models/ChatMsg")
+
 const { logger } = require('./utils/logger')
 
 class App {
@@ -28,13 +27,13 @@ class App {
 
     playersQueue = []
 
-    constructor(host, port){
+    constructor(host, port) {
         this.#host = host || DEFAULTS.HOST
         this.#port = port || DEFAULTS.PORT
 
         // Set up
-        this.app.use(express.json());
-                  
+        this.app.use(fileUpload())
+        this.app.use(express.json())
         this.app.use(cors());
         this.app.use(logMiddleware);
 
@@ -77,15 +76,21 @@ class App {
             const errorCode = e.code
             if (errorCode === 'EADDRINUSE') {
                 if (this.retryAttempts > 0) {
-                    console.error(`--- Address already in use, retry ${this.retryAttempts}/5...\n`);
+                    console.error(`--- Address ${this.#host}:${this.#port} already in use, retry ${this.retryAttempts}/5...\n`);
                     setTimeout(() => {
                         this.server.close();
                         this.server.listen(this.#port, this.#host);
                         this.retryAttempts--;
-                    }, 1000);
+                    }, 2000);
                 }
                 // format to label
-                else console.warn(`\x1b[1;31m[ERROR]\x1b[0m Address ${e.address}:${e.port} is already in use`)
+                else {
+                    logger.error(`Address ${e.address}:${e.port} is already in use`)
+                    logger.info('Trying new port...')
+                    this.setPort(e.port + 1);
+                    this.retryAttempts = 5;
+                    this.server.listen(this.#port, this.#host);
+                }
             }
         }).on('close', () => {
             db.close()
@@ -93,23 +98,25 @@ class App {
 
         this.io.on('connection', async (socket) => {
 
-            socket.data.username = (socket.id).slice(1, 6);
-            const user = socket.data.username
+            if(socket.data) {
+                logger.info('connection - socket.id -> ', socket.id)
+            }
 
+            socket.data.user = {
+                username: (socket.id).slice(1, 6)
+            }
 
-            socket.on('disconnect', () => {
-                logger.info(`${user} disconnected!`);
-                this.io.emit('chat message', { 
-                    msg:`${user} left the party`, 
-                    username: user, 
-                    isSystemMessage:true, 
-                    timestamp: null
-                });
-            });
             userEvents(this.io, socket)
+            fileEvents(this.io, socket)
             chatEvents(this.io, socket)
-            gameEvents(this.io, socket)
+
+            socket.on('disconnect', async () => {
+                const data = `${socket.data.user.username} has disconnected.`;
+                logger.info(data)
+            });
         })
+
+
     }
 
     close() {

@@ -14,29 +14,17 @@ const userSchema = new Schema({
 	},
 	email: {
 		type: String,
-		lòwercase: true,
+		lowercase: true,
 		unique: true,
 		required: [ true, "Can't be blank"],
 		match: [/\S+@\S+\.\S+/, 'is invalid'],
 		index: true,
 	},
-	firstName: String,
-	lastName: String,
-	password: String,
 	isSu: Boolean,
 	isStaff: Boolean,
+	password: String,
 }, {
 	timestamps: true,
-	virtuals: {
-		fullName: {
-			get() { return `${this.firstName} ${this.lastName}`; },
-			set(v) {
-				const firstName = v.substring(0, v.indexOf(' '));
-				const lastName = v.substring(v.indexOf(' ') + 1);
-				this.set({ firstName, lastName });
-			}
-		}
-	}
 });
 
 userSchema.methods.setPassword = function(password) {

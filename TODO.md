@@ -1,5 +1,6 @@
 # TODO
 
-- dockerize
-- fix emit
-- GAME!\
+- add auth
+- add createsuperuser
+- handle room chats
+- handle file upload

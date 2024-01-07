@@ -1,24 +1,34 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const { roomCategorySchema } = require('./RoomCategory')
-
-
-const roomStatus = {
-	AVL: 'Available',
-	OCC: 'Occupied',
-	OOO: 'Out of Order',
-};
+const User = require('./User');
 
 const roomSchema = new Schema({
-	number: Number,
-	status: {
+	roomID: {
 		type: String,
-		enum: Object.keys(roomStatus),
-		default: 'AVL',
+		required: true,
+		unique: true,
 	},
-	category: roomCategorySchema,
+	creator: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+	},
+	description: {
+		type: String,
+		required: false,
+	},
+	isPrivate: {
+		type: Boolean,
+		default: false
+	},
+    participants: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        }
+    ],
 }, { timestamps: true })
 
+const Room = mongoose.model('Room', roomSchema);
 
-module.exports = { Room:mongoose.model('Room', roomSchema), roomSchema}
-
+module.exports = Room;

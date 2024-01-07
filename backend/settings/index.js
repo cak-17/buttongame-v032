@@ -7,18 +7,21 @@ const DATABASE = {
     'DB_HOST': process.env.ATLAS_DB_HOST,
 };
 const CORS = {
-    origin: 'http://fracat-think.local:5173', 
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    credentials: false,
     optionsSuccessStatus: 204,
-  };
+};
 
 const DEFAULT_PORT = 8000;
 const DEFAULT_HOST = '0.0.0.0';
 const DEFAULT_DEV_HOST = 'localhost';
 const DEFAULT_RETRY = 5;
 
+const BASE_DIR = require('path').resolve(__dirname, "..")
+
 module.exports = {
+    BASE_DIR,
     DATABASE,
     DEFAULTS: {
         PORT: DEFAULT_PORT,

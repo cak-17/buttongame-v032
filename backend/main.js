@@ -16,7 +16,6 @@ yargs(hideBin(process.argv))
             logger.setLevel(levels.WARN)
         }
         return yargs
-
             .usage('Usage: $0 runserver [-hpdv]')
             .example('$0 runserver', 'Starts API Server')
             .example('$0 runserver -p 5454', 'Starts API on custom port: 5454')

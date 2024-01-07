@@ -15,6 +15,21 @@ import FallBack from './pages/FallBack';
 import ErrorPage from './pages/ErrorPage';
 import Layout from './layout';
 
+import SignIn from "./pages/SignIn";
+import Invite from "./pages/Invite";
+import Accept from './pages/Auth/Accept';
+import Register from './pages/Auth/Register';
+import { useSelector } from 'react-redux';
+import ActivateAccount from './pages/Auth/Activate';
+
+function AdminRoute({component}) {
+  const isAuth = useSelector((state) => state.user.isAuth)
+
+  return isAuth
+  ? component
+  :  <Navigate to="/auth/login/" />
+}
+
 const App = ({ socket }) => {
   const isSystemDarkMode = useMediaQuery("(prefers-color-scheme: light)")
   const [mode, setMode] = React.useState(isSystemDarkMode ? 'dark' : 'light');
@@ -23,19 +38,29 @@ const App = ({ socket }) => {
 
   React.useEffect(() => {
       // Listen for events from server
-      socket.on('chat message', ({ msg, username, isSystemMessage, timestamp }) => {
-          console.log('Received message from server:', msg, username, isSystemMessage, timestamp);
-          setReceivedMessages((messages) => [
-              ...messages,
-              { msg, username, isSystemMessage, timestamp }
-          ])
+      socket.on('get-last-50-msg', (msgRecords) => {
+        setReceivedMessages((messages) => [
+          ...msgRecords,
+          ...messages
+        ])
+      })
+
+      socket.on('chat message', (data) => {
+        console.log('Received message from server:', data.content, data.userName, data.isSystemMessage, data.timestamp);
+        setReceivedMessages((messages) => [
+          ...messages,
+          data
+        ])
       });
+      console.log("RECEIVED MSGS", receivedMessages)
 
       return () => {
           // Clean up event listeners
+          socket.off('chatRecord');
           socket.off('chat message');
       };
-  }, [socket]);
+  }, [socket, receivedMessages]);
+
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: () => {
@@ -60,22 +85,23 @@ const App = ({ socket }) => {
       path: '/',
       element: <Layout socket={socket}/>,
       children: [
-        { index: true, element: <Home socket={socket} />},
-        { path: "chat", element: <ChatRoom 
+        { index: true, element: <AdminRoute component={<ChatRoom
           socket={socket}
           message={message}
           receivedMessages={receivedMessages}
           setMessage={setMessage}
-        />}
+        />} />},
+        { path: 'auth', children: [
+          { path:"login", element: <SignIn /> },
+          { path:"accept/:uid/:token", element: <Accept /> },
+          { path:"register", element: <Register /> },
+          { path:"activate/:uid/:token", element: <ActivateAccount />},
+          { path:"invite", element: <Invite /> }
+        ]}
       ],
       errorElement: <ErrorPage />
     },
-    // { path: 'auth', children: [
-    //   { path:"login", element: <SignIn /> },
-    //   { path:"accept/:uid/:token", element: <Accept /> },
-    //   { path:"register", element: <Register /> },
-    //   { path:"activate/:uid/:token", element: <ActivateAccount />}
-    // ]}
+
   ])
 
   return (

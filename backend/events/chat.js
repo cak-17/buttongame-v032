@@ -3,22 +3,34 @@ const { logger } = require('../utils/logger')
 
 const handleChatEvents = async (io, socket) => {
     const fetchedChatRecords = await ChatMsg.find({});
+
     io.emit('chatRecord', fetchedChatRecords);
 
-    socket.on('chat message', async (msg) => {
+    io.emit('get-last-50-msg', fetchedChatRecords.slice(-50))
+
+    socket.on('chat message', async (data) => {
+        if (!data) {
+            logger.error('Empty message')
+            return;
+        }
+
         const chatMessage = new ChatMsg({
             userName: socket.data.username,
-            content: msg,
+            content: data,
+            isSystemMessage: false
         });
+
         try {
             const savedMessage = await chatMessage.save()
-            logger.info(`${savedMessage.createdAt.toISOString()} | ${socket.data.username}: ${msg}`);
             io.emit('chat message', {
-                msg,
-                username: socket.data.username,
-                isSystemMessage: false,
+                content: data,
+                userName: socket.data.username,
+                isSystemMessage: savedMessage.isSystemMessage,
                 timestamp: savedMessage.createdAt
             });
+            logger.info(
+                `${savedMessage.createdAt.toISOString()} | ${savedMessage.userName}: ${savedMessage.content}`
+            )
         } catch (error) {
             console.error(error)
         }

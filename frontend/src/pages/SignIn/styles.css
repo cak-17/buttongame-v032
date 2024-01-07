@@ -1,0 +1,149 @@
+.singlePage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.pageTitle {
+    margin-bottom: 3rem;
+    font-size: xx-large;
+}
+
+
+.loginForm {
+    padding-block: 10px;
+    display: grid;
+    gap: 0.8rem;
+}
+
+.formField {
+    display: grid;
+}
+
+.formField input {
+    width: 280px;
+    -webkit-appearance: none;
+    border: 0;
+    font-family: inherit;
+    padding: 0;
+    height: 48px;
+    font-size: 16px;
+    font-weight: 500;
+    background: none;
+    border-radius: 0;
+    color: #223254;
+    transition: all 0.15s ease;
+}
+
+.formField input:focus {
+    outline: none;
+}
+
+.formInput {
+    position: relative;
+    margin: auto;
+    width: 100%;
+    max-width: 280px;
+    height: 53px;
+}
+
+.formInput .border {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 18px;
+    fill: none;
+}
+
+.formInput .border path {
+    stroke: #c8ccd4;
+    stroke-width: 2;
+}
+
+.formInput .border path d {
+    transition: all 0.2s ease;
+}
+
+.formInput .check {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    fill: none;
+    transform: translate(0, 9px) scale(0);
+    transition: all 0.3s cubic-bezier(0.5, 0.9, 0.25, 1.3);
+    transition-delay: 0.15s;
+}
+
+.formInput .check path {
+    stroke: var(--secondary-color);
+    stroke-width: 2;
+}
+
+.formInput input:focus {
+    outline: none;
+}
+
+.formInput input:focus+.border path {
+    stroke: var(--secondary-color);
+}
+
+.formInput input:valid+.border path {
+    animation: elasticInput 0.8s ease forwards;
+}
+
+.formInput input:valid+.border+.check {
+    transform: translate(0, 0) scale(1);
+}
+
+::placeholder {
+    color: #9098a9;
+}
+
+@-moz-keyframes elasticInput {
+    33% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,1 253,1 C261,1 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+
+    66% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,17 253,17 C261,17 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+}
+
+@-webkit-keyframes elasticInput {
+    33% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,1 253,1 C261,1 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+
+    66% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,17 253,17 C261,17 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+}
+
+@-o-keyframes elasticInput {
+    33% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,1 253,1 C261,1 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+
+    66% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,17 253,17 C261,17 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+}
+
+@keyframes elasticInput {
+    33% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,1 253,1 C261,1 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+
+    66% {
+        d: path("M0,12 L226,12 C220,12 220.666667,12 228,12 C239,12 245,17 253,17 C261,17 268,12 278,12 C284.666667,12 285.333333,12 280,12"
+            );
+    }
+}
